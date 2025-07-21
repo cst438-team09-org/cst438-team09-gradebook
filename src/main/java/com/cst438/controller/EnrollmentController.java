@@ -38,22 +38,63 @@ public class EnrollmentController {
             @PathVariable("sectionNo") int sectionNo, Principal principal ) {
 				
 		// check that the sectionNo belongs to the logged in instructor.
-		
+        Section section = sectionRepository.findById(sectionNo).orElse(null);
+        if(section == null){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "section number not found");
+        }
+        if(section.getInstructorEmail()!= principal.getName()){
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Logged in user is not instructor for the given assignment");
+        }
 		// use the EnrollmentRepository findEnrollmentsBySectionNoOrderByStudentName
-		// to get a list of Enrollments for the given sectionNo.
-		// Return a list of EnrollmentDTOs
 
-        return null;
+		// to get a list of Enrollments for the given sectionNo.
+
+		// Return a list of EnrollmentDTOs
+        Course course = section.getCourse();
+        Term term = section.getTerm();
+        return enrollmentRepository.findEnrollmentsBySectionNoOrderByStudentName(sectionNo).stream().map((e)-> {
+                User student = e.getStudent();
+                return new EnrollmentDTO(
+                        e.getEnrollmentId(),
+                        e.getGrade(),
+                        student.getId(),
+                        student.getName(),
+                        student.getEmail(),
+                        course.getCourseId(),
+                        course.getTitle(),
+                        section.getSectionId(),
+                        sectionNo,
+                        section.getBuilding(),
+                        section.getRoom(),
+                        section.getTimes(),
+                        course.getCredits(),
+                        term.getYear(),
+                        term.getSemester()
+                );
+        }).toList();
     }
 
     // instructor updates enrollment grades
     @PreAuthorize("hasAuthority('SCOPE_ROLE_INSTRUCTOR')")
     @PutMapping("/enrollments")
     public void updateEnrollmentGrade(@Valid @RequestBody List<EnrollmentDTO> dtoList, Principal principal) {
-		// for each EnrollmentDTO 
-        //    check that logged in user is instructor for the section
-        //    update the enrollment grade
-        //    send message to Registrar service for grade update
+		// for each EnrollmentDTO
+        for(EnrollmentDTO enrollmentDTO: dtoList){
+            Enrollment enrollment = enrollmentRepository.findById(enrollmentDTO.enrollmentId()).orElse(null);
+            if(enrollment == null){
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "enrollment id not found");
+            }
+            //    check that logged in user is instructor for the section
+            Section section = enrollment.getSection();
+            if(section.getInstructorEmail()!= principal.getName()){
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Logged in user is not instructor for the given section");
+            }
+            //    update the enrollment grade
+            enrollment.setGrade(enrollmentDTO.grade());
+            //    send message to Registrar service for grade update
+
+            registrar.sendMessage("updateEnrollment", enrollmentDTO);
+        }
        
     }
 }
