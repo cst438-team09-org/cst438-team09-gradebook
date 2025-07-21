@@ -42,8 +42,8 @@ public class EnrollmentController {
         if(section == null){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "section number not found");
         }
-        if(section.getInstructorEmail()!= principal.getName()){
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Logged in user is not instructor for the given assignment");
+        if(!section.getInstructorEmail().equals(principal.getName())){
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Logged in user is not instructor for the given assignment " + section.getInstructorEmail()+ " " + principal.getName());
         }
 		// use the EnrollmentRepository findEnrollmentsBySectionNoOrderByStudentName
 
@@ -86,7 +86,7 @@ public class EnrollmentController {
             }
             //    check that logged in user is instructor for the section
             Section section = enrollment.getSection();
-            if(section.getInstructorEmail()!= principal.getName()){
+            if(!section.getInstructorEmail().equals(principal.getName())){
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Logged in user is not instructor for the given section");
             }
             //    update the enrollment grade

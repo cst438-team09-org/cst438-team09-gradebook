@@ -33,13 +33,13 @@ public class GradeController {
            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "assignment id not found");
        }
        Section section = assignment.getSection();
-       if(section.getInstructorEmail()!= principal.getName()){
+        if(!section.getInstructorEmail().equals(principal.getName())){
            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Logged in user is not instructor for the given assignment");
        }
         // return a list of GradeDTOs containing student scores for an assignment
         // if a Grade entity does not exist, then create the Grade entity 
 		// with a null score and return the gradeId.
-        List<GradeDTO> grades = section.getEnrollments().stream().map((e) ->{
+       return section.getEnrollments().stream().map((e) ->{
             User student = e.getStudent();
             Grade grade = gradeRepository.findByStudentEmailAndAssignmentId(e.getStudent().getEmail(),assignmentId);
             return new GradeDTO(
@@ -66,8 +66,8 @@ public class GradeController {
             }
             // check that the logged in instructor is the owner of the section
             Enrollment enrollment = grade.getEnrollment();
-            Section section = enrollment.getSection()
-            if(section.getInstructorEmail()!= principal.getName()){
+            Section section = enrollment.getSection();
+            if(!section.getInstructorEmail().equals(principal.getName())){
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Logged in user is not instructor for the given section");
             }
             // update the assignment score
