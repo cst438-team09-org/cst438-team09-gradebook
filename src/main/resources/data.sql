@@ -4,8 +4,8 @@ insert into term (term_id, tyear, semester, add_date, add_deadline, drop_deadlin
 
 insert into user_table (id, name, email, password, type) values
  (1, 'admin', 'admin@csumb.edu', '$2a$10$8cjz47bjbR4Mn8GMg9IZx.vyjhLXR/SKKMSZ9.mP9vpMu0ssKi8GW' , 'ADMIN'),
- (2, 'sam', 'sam@csumb.edu', '$2a$10$B3E9IWa9fCy1SaMzfg1czu312d0xRAk1OU2sw5WOE7hs.SsLqGE9O', 'STUDENT'),
- (3, 'ted', 'ted@csumb.edu', '$2a$10$YU83ETxvPriw/t2Kd2wO8u8LoKRtl9auX2MsUAtNIIQuKROBvltdy', 'INSTRUCTOR');
+ (2, 'sam', 'sam@csumb.edu', '$2a$10$jt2znhe0fT6z39Xlgc2DnOTB1QLuaPzGxmzbs0KHn4JDFf.8Gvcmu', 'STUDENT'),
+ (3, 'ted', 'ted@csumb.edu', '$2a$10$lvIkD3b9WUcvEeSqVuDmdeDGm0dtkZKLYMZUfs6YBIWGb4.1GP1VS', 'INSTRUCTOR');
 
 
 insert into course values
