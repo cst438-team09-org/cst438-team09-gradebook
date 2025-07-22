@@ -22,12 +22,12 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class EnrollmentControllerUnitTest {
+public class GradeControllerUnitTest {
 
-   @Autowired
+    @Autowired
     private WebTestClient client ;
     @Autowired
-    private EnrollmentRepository enrollmentRepository;
+    private GradeRepository gradeRepository;
 
     // default behavior for a Mock bean
     // return 0 or null for a method that returns a value
@@ -37,7 +37,7 @@ public class EnrollmentControllerUnitTest {
     Random random = new Random();
 
     @Test
-    public void testGetAndUpdateEnrollments() throws Exception {
+    public void testGetAndUpdateGrades() throws Exception {
 
         // login as admin and get the security token
         String instructorEmail = "ted@csumb.edu";
@@ -54,39 +54,33 @@ public class EnrollmentControllerUnitTest {
         assertNotNull(jwt);
 
 
-        EntityExchangeResult<List<EnrollmentDTO>> enrollmentResponse =  client.get().uri("/sections/1/enrollments")
+        EntityExchangeResult<List<GradeDTO>> gradeResponse =  client.get().uri("/assignments/1/grades")
                 .headers(headers -> headers.setBearerAuth(jwt))
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isOk()
-                .expectBodyList(EnrollmentDTO.class).returnResult();
-        List<EnrollmentDTO> enrollmentDTOS = enrollmentResponse.getResponseBody();
+                .expectBodyList(GradeDTO.class).returnResult();
+        List<GradeDTO> gradeDTOS = gradeResponse.getResponseBody();
 
-        ArrayList<EnrollmentDTO> updates = new ArrayList<EnrollmentDTO>();
-        for (EnrollmentDTO e : enrollmentDTOS) {
-            updates.add(new EnrollmentDTO(
-                    e.enrollmentId(),
-                    "A",
-                    e.studentId(),
-                    e.name(),
-                    e.email(),
-                    e.courseId(),
-                    e.title(),
-                    e.sectionId(),
-                    e.sectionNo(),
-                    e.building(),
-                    e.room(),
-                    e.times(),
-                    e.credits(),
-                    e.year(),
-                    e.semester()
+        ArrayList<GradeDTO> updates = new ArrayList<GradeDTO>();
+        for (GradeDTO g : gradeDTOS) {
+            updates.add(new GradeDTO(
+                    g.gradeId(),
+                    g.studentName(),
+                    g.studentEmail(),
+                    g.assignmentTitle(),
+                    g.courseId(),
+                    g.sectionId(),
+                    95
+
+
 
             ));
 
 
 
         }
-        EntityExchangeResult<Void> updateResponse =  client.put().uri("/enrollments")
+        EntityExchangeResult<Void> updateResponse =  client.put().uri("/grades")
                 .headers(headers -> headers.setBearerAuth(jwt))
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(updates)
@@ -95,14 +89,14 @@ public class EnrollmentControllerUnitTest {
                 .expectStatus().isOk()
                 .expectBody(Void.class).returnResult();
 
-        for(EnrollmentDTO update: updates){
-            Enrollment enrollment = enrollmentRepository.findById(update.enrollmentId()).orElse(null);
-            assertNotNull(enrollment);
-            assertEquals("A", enrollment.getGrade());
+        for(GradeDTO update: updates){
+            Grade grade = gradeRepository.findById(update.gradeId()).orElse(null);
+            assertNotNull(grade);
+            assertEquals(95, grade.getScore());
         }
 
-    }
 
+    }
     @Test
     public void testInvalidInstructor() throws Exception {
 
@@ -121,7 +115,7 @@ public class EnrollmentControllerUnitTest {
         assertNotNull(jwt);
 
 
-        client.get().uri("/sections/1/enrollments")
+        client.get().uri("/assignments/1/grades")
                 .headers(headers -> headers.setBearerAuth(jwt))
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
@@ -130,11 +124,11 @@ public class EnrollmentControllerUnitTest {
                 // check the list of validation messages
                 .jsonPath("$.errors[?(@=='Logged in user is not instructor for the given assignment')]").exists();
 
-        ArrayList<EnrollmentDTO> updates = new ArrayList<EnrollmentDTO>();
-        updates.add(new EnrollmentDTO(
-                1, "C", 1, null, null, null, null, 1, 1, null, null, null, 4, 2025, null
+        ArrayList<GradeDTO> updates = new ArrayList<GradeDTO>();
+        updates.add(new GradeDTO(
+                1, null, null, null, null, 1, 50
         ));
-        client.put().uri("/enrollments")
+        client.put().uri("/grades")
                 .headers(headers -> headers.setBearerAuth(jwt))
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(updates)
@@ -147,7 +141,7 @@ public class EnrollmentControllerUnitTest {
     }
 
     @Test
-    public void testInvalidSectionAndEnrollment() throws Exception {
+    public void testInvalidAssignmentAndGrade() throws Exception {
 
         // login as admin and get the security token
         String instructorEmail = "ted@csumb.edu";
@@ -164,20 +158,20 @@ public class EnrollmentControllerUnitTest {
         assertNotNull(jwt);
 
 
-        client.get().uri("/sections/2/enrollments")
+        client.get().uri("/assignments/2/grades")
                 .headers(headers -> headers.setBearerAuth(jwt))
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isBadRequest()
                 .expectBody()
                 // check the list of validation messages
-                .jsonPath("$.errors[?(@=='section number not found')]").exists();
+                .jsonPath("$.errors[?(@=='assignment id not found')]").exists();
 
-        ArrayList<EnrollmentDTO> updates = new ArrayList<EnrollmentDTO>();
-        updates.add(new EnrollmentDTO(
-                2, "C", 1, null, null, null, null, 1, 1, null, null, null, 4, 2025, null
+        ArrayList<GradeDTO> updates = new ArrayList<GradeDTO>();
+        updates.add(new GradeDTO(
+                2, null, null, null, null, 1, 50
         ));
-        client.put().uri("/enrollments")
+        client.put().uri("/grades")
                 .headers(headers -> headers.setBearerAuth(jwt))
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(updates)
@@ -186,6 +180,7 @@ public class EnrollmentControllerUnitTest {
                 .expectStatus().isBadRequest()
                 .expectBody()
                 // check the list of validation messages
-                .jsonPath("$.errors[?(@=='enrollment id not found')]").exists();
+                .jsonPath("$.errors[?(@=='grade id not found')]").exists();
     }
+
 }

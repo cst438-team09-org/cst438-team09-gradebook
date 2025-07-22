@@ -72,6 +72,7 @@ public class GradeController {
             }
             // update the assignment score
             grade.setScore(gradeDTO.score());
+            gradeRepository.save(grade);
         }
     }
 }

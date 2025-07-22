@@ -5,7 +5,8 @@ insert into term (term_id, tyear, semester, add_date, add_deadline, drop_deadlin
 insert into user_table (id, name, email, password, type) values
  (1, 'admin', 'admin@csumb.edu', '$2a$10$8cjz47bjbR4Mn8GMg9IZx.vyjhLXR/SKKMSZ9.mP9vpMu0ssKi8GW' , 'ADMIN'),
  (2, 'sam', 'sam@csumb.edu', '$2a$10$B3E9IWa9fCy1SaMzfg1czu312d0xRAk1OU2sw5WOE7hs.SsLqGE9O', 'STUDENT'),
- (3, 'ted', 'ted@csumb.edu', '$2a$10$YU83ETxvPriw/t2Kd2wO8u8LoKRtl9auX2MsUAtNIIQuKROBvltdy', 'INSTRUCTOR');
+ (3, 'ted', 'ted@csumb.edu', '$2a$10$YU83ETxvPriw/t2Kd2wO8u8LoKRtl9auX2MsUAtNIIQuKROBvltdy', 'INSTRUCTOR'),
+ (4, 'teddy', 'teddy@csumb.edu', '$2a$10$YU83ETxvPriw/t2Kd2wO8u8LoKRtl9auX2MsUAtNIIQuKROBvltdy', 'INSTRUCTOR');
 
 
 insert into course values
@@ -18,4 +19,9 @@ insert into course values
 insert into section (section_no, course_id, section_id, term_id, building, room, times, instructor_email) values
 (1, 'cst489', 1, 10, '90', 'B104', 'W F 10-11', 'ted@csumb.edu');
 
--- insert into enrollment (grade, section_no, user_id) values (null, 1, 2);
+insert into enrollment (enrollment_id, grade, section_no, user_id) values (1, null, 1, 2);
+
+insert into assignment (assignment_id, section_no, title, due_date) values (1, 1, 'Essay', null);
+
+insert into grade (grade_id, enrollment_id, assignment_id, score) values (1, 1, 1, 90);
+
