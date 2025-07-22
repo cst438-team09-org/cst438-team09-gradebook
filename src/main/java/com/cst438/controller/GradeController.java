@@ -27,11 +27,31 @@ public class GradeController {
     @GetMapping("/assignments/{assignmentId}/grades")
     public List<GradeDTO> getAssignmentGrades(@PathVariable("assignmentId") int assignmentId, Principal principal) {
 		// Check that the Section of the assignment belongs to the 
-		// logged in instructor 
+		// logged in instructor
+       Assignment assignment = assignmentRepository.findById(assignmentId).orElse(null);
+       if(assignment == null){
+           throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "assignment id not found");
+       }
+       Section section = assignment.getSection();
+        if(!section.getInstructorEmail().equals(principal.getName())){
+           throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Logged in user is not instructor for the given assignment");
+       }
         // return a list of GradeDTOs containing student scores for an assignment
         // if a Grade entity does not exist, then create the Grade entity 
-		// with a null score and return the gradeId. 
-        return null;
+		// with a null score and return the gradeId.
+       return section.getEnrollments().stream().map((e) ->{
+            User student = e.getStudent();
+            Grade grade = gradeRepository.findByStudentEmailAndAssignmentId(e.getStudent().getEmail(),assignmentId);
+            return new GradeDTO(
+                    grade.getGradeId(),
+                    student.getName(),
+                    student.getEmail(),
+                    assignment.getTitle(),
+                    section.getCourse().getCourseId(),
+                    section.getSectionId(),
+                    grade.getScore()
+            );
+        }).toList();
     }
 
 
@@ -39,9 +59,19 @@ public class GradeController {
     @PreAuthorize("hasAuthority('SCOPE_ROLE_INSTRUCTOR')")
     public void updateGrades(@Valid @RequestBody List<GradeDTO> dtoList, Principal principal) {
 		// for each GradeDTO
-		// check that the logged in instructor is the owner of the section
-        // update the assignment score
-        
-        
+        for(GradeDTO gradeDTO: dtoList){
+            Grade grade = gradeRepository.findById(gradeDTO.gradeId()).orElse(null);
+            if(grade == null){
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "grade id not found");
+            }
+            // check that the logged in instructor is the owner of the section
+            Enrollment enrollment = grade.getEnrollment();
+            Section section = enrollment.getSection();
+            if(!section.getInstructorEmail().equals(principal.getName())){
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Logged in user is not instructor for the given section");
+            }
+            // update the assignment score
+            grade.setScore(gradeDTO.score());
+        }
     }
 }
