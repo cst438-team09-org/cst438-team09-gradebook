@@ -58,7 +58,7 @@ public class AssignmentControllerUnitTest {
     @Test
     public void assignmentCreateUpdateDelete() throws Exception {
         // login as instructor
-        String jwt = loginAndGetJwt("ted@csumb.edu", "ted");
+        String jwt = loginAndGetJwt("ted@csumb.edu", "ted2025");
 
         // fetch an existing section
         List<Section> sections = new ArrayList<>();
@@ -132,7 +132,7 @@ public class AssignmentControllerUnitTest {
     @Test
     public void getAssignmentsForSection() throws Exception {
         // login as instructor
-        String jwt = loginAndGetJwt("ted@csumb.edu", "ted");
+        String jwt = loginAndGetJwt("ted@csumb.edu", "ted2025");
 
         List<Section> sections = new ArrayList<>();
         sectionRepository.findAll().forEach(sections::add);
@@ -150,7 +150,7 @@ public class AssignmentControllerUnitTest {
     @Test
     public void getStudentAssignments() throws Exception {
         // login as student
-        String jwt = loginAndGetJwt("sam@csumb.edu", "sam");
+        String jwt = loginAndGetJwt("sam@csumb.edu", "sam2025");
 
         client.get().uri(uri -> uri.path("/assignments")
                         .queryParam("year", "2025")
