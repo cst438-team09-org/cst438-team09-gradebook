@@ -42,6 +42,13 @@ public class GradeController {
        return section.getEnrollments().stream().map((e) ->{
             User student = e.getStudent();
             Grade grade = gradeRepository.findByStudentEmailAndAssignmentId(e.getStudent().getEmail(),assignmentId);
+            if (grade == null){
+                grade = new Grade();
+                grade.setAssignment(assignment);
+                grade.setEnrollment(e);
+                grade.setScore(null);
+                gradeRepository.save(grade);
+            }
             return new GradeDTO(
                     grade.getGradeId(),
                     student.getName(),
