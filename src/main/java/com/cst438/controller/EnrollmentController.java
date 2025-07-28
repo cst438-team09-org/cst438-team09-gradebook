@@ -43,7 +43,7 @@ public class EnrollmentController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "section number not found");
         }
         if(!section.getInstructorEmail().equals(principal.getName())){
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Logged in user is not instructor for the given assignment " + section.getInstructorEmail()+ " " + principal.getName());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Logged in user is not instructor for the given assignment");
         }
 		// use the EnrollmentRepository findEnrollmentsBySectionNoOrderByStudentName
 
@@ -91,6 +91,7 @@ public class EnrollmentController {
             }
             //    update the enrollment grade
             enrollment.setGrade(enrollmentDTO.grade());
+            enrollmentRepository.save(enrollment);
             //    send message to Registrar service for grade update
 
             registrar.sendMessage("updateEnrollment", enrollmentDTO);
