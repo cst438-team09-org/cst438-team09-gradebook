@@ -16,11 +16,10 @@ public class TestDataController {
         this.jdbc = jdbc;
     }
 
-    /** Seed with exactly the rows your tests expect */
     @PostMapping("/seed")
     public ResponseEntity<String> seed() {
         try {
-            // First, clean up any existing data to avoid constraint violations
+            // clean up any existing data to avoid conflicts
             reset();
 
             // Insert test data
@@ -53,11 +52,9 @@ public class TestDataController {
         }
     }
 
-    /** Wipe out everything you seeded (back to a clean slate) */
     @PostMapping("/reset")
     public ResponseEntity<String> reset() {
         try {
-            // Delete in correct order to avoid foreign key constraint violations
             jdbc.update("DELETE FROM enrollment WHERE section_no = 2");
             jdbc.update("DELETE FROM section WHERE section_no = 2");
             jdbc.update("DELETE FROM course WHERE course_id IN ('cst499', 'cst599')");
