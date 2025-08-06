@@ -24,11 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 public class EnterEnrollmentGradesSystemTest {
 
     private static final Properties localConfig = new Properties();
-    // front-end UI under test
-    private static final String URL = localConfig.getProperty("test.url");
-    // back-end test endpoints
-    private static final String BACKEND_URL = "http://localhost:" + localConfig.getProperty("server.port");
-
     static {
         try (InputStream input = EnterEnrollmentGradesSystemTest.class.getClassLoader().getResourceAsStream("test.properties")) {
             if (input == null) {
@@ -39,6 +34,11 @@ public class EnterEnrollmentGradesSystemTest {
             throw new RuntimeException("Could not load test.properties", e);
         }
     }
+
+    // front-end UI under test
+    private static final String URL = localConfig.getProperty("test.url");
+    // back-end test endpoints
+    private static final String BACKEND_URL = "http://localhost:" + localConfig.getProperty("server.port");
 
     private final RestTemplate restTemplate = new RestTemplate();
 
