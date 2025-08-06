@@ -55,6 +55,8 @@ public class TestDataController {
     @PostMapping("/reset")
     public ResponseEntity<String> reset() {
         try {
+            jdbc.update("DELETE FROM grade WHERE assignment_id IN (SELECT assignment_id FROM assignment WHERE section_no = 2)");
+            jdbc.update("DELETE FROM assignment WHERE section_no = 2");
             jdbc.update("DELETE FROM enrollment WHERE section_no = 2");
             jdbc.update("DELETE FROM section WHERE section_no = 2");
             jdbc.update("DELETE FROM course WHERE course_id IN ('cst499', 'cst599')");

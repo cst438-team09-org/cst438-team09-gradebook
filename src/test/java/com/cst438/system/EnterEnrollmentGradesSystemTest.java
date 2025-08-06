@@ -17,17 +17,19 @@ import java.io.InputStream;
 import java.time.Duration;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class EnterEnrollmentGradesSystemTest {
-
     private static final Properties localConfig = new Properties();
+
     static {
-        try (InputStream input = EnterEnrollmentGradesSystemTest.class.getClassLoader().getResourceAsStream("test.properties")) {
+        try (InputStream input = EnterEnrollmentGradesSystemTest.class.getClassLoader()
+                .getResourceAsStream("test.properties")) {
             if (input == null) {
-                throw new RuntimeException("test.properties not found. Copy test.properties.example and configure it.");
+                throw new RuntimeException("test.properties not found. Copy test.properties to test.properties and configure for your system.");
             }
             localConfig.load(input);
         } catch (IOException e) {
@@ -35,26 +37,39 @@ public class EnterEnrollmentGradesSystemTest {
         }
     }
 
-    // front-end UI under test
-    private static final String URL = localConfig.getProperty("test.url");
-    // back-end test endpoints
-    private static final String BACKEND_URL = "http://localhost:" + localConfig.getProperty("server.port");
+    static final String URL = localConfig.getProperty("test.url");
+
+    // back-end test endpoints for both services
+    private static final String REGISTRAR_BACKEND_URL = "http://localhost:8080";
+    private static final String GRADEBOOK_BACKEND_URL = "http://localhost:8081";
+    private static final int DELAY = 1000; // milliseconds
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    private WebDriver driver;
-    private WebDriverWait wait;
+    WebDriver driver;
+    Random random = new Random();
+    WebDriverWait wait;
 
     @BeforeEach
     public void beforeEach() {
-        // seed the test data
-        restTemplate.postForEntity(BACKEND_URL + "/test/seed", null, Void.class);
+        // seed the test data on both services
+        try {
+            restTemplate.postForEntity(REGISTRAR_BACKEND_URL + "/test/seed", null, Void.class);
+        } catch (Exception e) {
+            System.out.println("Failed to seed registrar service: " + e.getMessage());
+        }
+
+        try {
+            restTemplate.postForEntity(GRADEBOOK_BACKEND_URL + "/test/seed", null, Void.class);
+        } catch (Exception e) {
+            System.out.println("Failed to seed gradebook service: " + e.getMessage());
+        }
 
         // start ChromeDriver and navigate to the UI
         System.setProperty("webdriver.chrome.driver", localConfig.getProperty("chrome.driver.path"));
         ChromeOptions ops = new ChromeOptions();
         ops.addArguments("--remote-allow-origins=*");
-        ops.addArguments("--headless=new");
+//        ops.addArguments("--headless=new");
         ops.setBinary(localConfig.getProperty("chrome.binary.path"));
 
         driver = new ChromeDriver(ops);
@@ -65,8 +80,18 @@ public class EnterEnrollmentGradesSystemTest {
 
     @AfterEach
     public void afterEach() {
-        // reset the test data
-        restTemplate.postForEntity(BACKEND_URL + "/test/reset", null, Void.class);
+        // reset the test data on both services
+        try {
+            restTemplate.postForEntity(REGISTRAR_BACKEND_URL + "/test/reset", null, Void.class);
+        } catch (Exception e) {
+            System.out.println("Failed to reset registrar service: " + e.getMessage());
+        }
+
+        try {
+            restTemplate.postForEntity(GRADEBOOK_BACKEND_URL + "/test/reset", null, Void.class);
+        } catch (Exception e) {
+            System.out.println("Failed to reset gradebook service: " + e.getMessage());
+        }
 
         // tear down browser
         if (driver != null) driver.quit();
