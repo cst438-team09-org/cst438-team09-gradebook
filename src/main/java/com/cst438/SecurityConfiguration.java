@@ -72,7 +72,8 @@ public class SecurityConfiguration {
                                 // list of unsecured URLs for h2 console, and for  things needed in assignment 8 for AWS
                                 AntPathRequestMatcher.antMatcher("/h2-console/**"),
                                 AntPathRequestMatcher.antMatcher("/"),
-                                AntPathRequestMatcher.antMatcher("/exit")
+                                AntPathRequestMatcher.antMatcher("/exit"),
+                                AntPathRequestMatcher.antMatcher("/test/**")
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
