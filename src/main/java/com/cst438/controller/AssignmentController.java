@@ -87,14 +87,19 @@ public class AssignmentController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not authorized for this section");
         }
         return section.getAssignments().stream()
-                .map(a -> new AssignmentDTO(
-                        a.getAssignmentId(),
-                        a.getTitle(),
-                        a.getDueDate().toString(),
-                        section.getCourse().getCourseId(),
-                        section.getSectionId(),
-                        section.getSectionNo()
-                ))
+                .map(a -> {
+                    String due = a.getDueDate() == null
+                            ? ""
+                            : a.getDueDate().toString();
+                    return new AssignmentDTO(
+                            a.getAssignmentId(),
+                            a.getTitle(),
+                            due,
+                            section.getCourse().getCourseId(),
+                            section.getSectionId(),
+                            section.getSectionNo()
+                    );
+                })
                 .toList();
     }
 
